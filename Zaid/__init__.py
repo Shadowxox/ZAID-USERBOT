@@ -20,7 +20,7 @@ aiosession = None
 
 # Ensure OWNER is included in SUDO_USERS
 SUDO_USERS = list(set(SUDO_USERS + [OWNER_ID]))
-
+SUDO_USER = SUDO_USERS 
 # Fallback values
 API_ID = API_ID or "23287799"
 API_HASH = API_HASH or "9f4f17dae2181ee22c275b9b40a3c907"
