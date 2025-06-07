@@ -11,7 +11,7 @@ sessions = {}  # Temp memory to store login steps
 async def start_command(client: Client, message: Message):
     PHONE_NUMBER_TEXT = (
         "✘ Heya My Master👋!\n\n✘ I'm Your Assistant!\n\n‣ I can help you host your user clients.\n\n"
-        "‣ Repo: github.com/Itz-Zaid/Zaid-Userbot\n‣ Specially for Buzzy People 😴\n\n"
+        "‣ Specially for Buzzy People 😴\n\n"
         "‣ Use /clone <string> to login with session.\n‣ Use /add to login via phone.\n‣ Use /remove <string> to remove session."
     )
     buttons = [
