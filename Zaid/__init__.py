@@ -1,6 +1,6 @@
 import time
-from datetime import datetime
 import asyncio
+from datetime import datetime
 from aiohttp import ClientSession
 from pyrogram import Client
 from config import (
@@ -10,7 +10,7 @@ from config import (
     STRING_SESSION9, STRING_SESSION10
 )
 
-# Global variables
+# ─── Globals ─────────────────────────────────────────────────────────
 StartTime = time.time()
 START_TIME = datetime.now()
 CMD_HELP = {}
@@ -18,17 +18,19 @@ clients = []
 ids = []
 aiosession = None
 
-# Ensure OWNER is included in SUDO_USERS
+# ─── SUDO Users ──────────────────────────────────────────────────────
 SUDO_USERS = list(set(SUDO_USERS + [OWNER_ID]))
-SUDO_USER = SUDO_USERS 
-# Fallback values
+SUDO_USER = SUDO_USERS
+
+# ─── Config Validation ───────────────────────────────────────────────
+if not API_ID or not API_HASH or not BOT_TOKEN:
+    raise RuntimeError("❌ Missing API_ID, API_HASH, or BOT_TOKEN in config!")
+
+# ─── Fallback Defaults (Optional) ────────────────────────────────────
 API_ID = API_ID or "23287799"
 API_HASH = API_HASH or "9f4f17dae2181ee22c275b9b40a3c907"
 
-if not BOT_TOKEN:
-    raise ValueError("❌ BOT_TOKEN is missing in config. Please provide it.")
-
-# Strip any leading/trailing whitespace from session strings
+# ─── User Session Strings ────────────────────────────────────────────
 session_strings = list(filter(None, [
     STRING_SESSION1.strip() if STRING_SESSION1 else None,
     STRING_SESSION2.strip() if STRING_SESSION2 else None,
@@ -42,7 +44,7 @@ session_strings = list(filter(None, [
     STRING_SESSION10.strip() if STRING_SESSION10 else None,
 ]))
 
-# Bot Client (main bot)
+# ─── Main Bot Client ────────────────────────────────────────────────
 app = Client(
     name="app",
     api_id=API_ID,
@@ -52,7 +54,7 @@ app = Client(
     in_memory=True,
 )
 
-# User clients from session strings
+# ─── Create User Clients ─────────────────────────────────────────────
 for idx, session in enumerate(session_strings, 1):
     print(f"Client{idx}: Found.. Starting.. 📳")
     user_client = Client(
@@ -60,39 +62,46 @@ for idx, session in enumerate(session_strings, 1):
         api_id=API_ID,
         api_hash=API_HASH,
         session_string=session,
-        plugins=dict(root="Zaid/modules")
+        plugins=dict(root="Zaid/modules"),
     )
     clients.append(user_client)
 
-# Create aiohttp session
+# ─── aiohttp Session ────────────────────────────────────────────────
 async def create_aiosession():
     global aiosession
     if aiosession is None:
         aiosession = ClientSession()
 
-# Start all clients
+# ─── Start All Clients ───────────────────────────────────────────────
 async def start_all():
     await create_aiosession()
     await app.start()
-    print("✅ Bot client started.")
+    print("✅ Main bot started.")
 
     for client in clients:
         await client.start()
         print(f"✅ {client.name} started.")
 
-# Stop all clients
+# ─── Stop All Clients ────────────────────────────────────────────────
 async def stop_all():
+    print("🛑 Shutting down...")
     await app.stop()
     for client in clients:
         await client.stop()
     if aiosession:
         await aiosession.close()
-    print("🛑 All clients stopped.")
+    print("✅ All clients stopped cleanly.")
 
-# Run everything
+# ─── Main Runner ─────────────────────────────────────────────────────
 if __name__ == "__main__":
     try:
         asyncio.run(start_all())
     except KeyboardInterrupt:
-        print("Interrupted. Shutting down...")
-        asyncio.run(stop_all())
+        print("❗ Keyboard Interrupt received.")
+        # Use a new event loop to stop safely
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+        loop.run_until_complete(stop_all())
