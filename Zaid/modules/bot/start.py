@@ -2,8 +2,8 @@ import os
 from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
 from config import API_ID, API_HASH, OWNER_ID, ALIVE_PIC
-
-app = Client("main_bot", api_id=API_ID, api_hash=API_HASH)  # Your main bot instance
+from Zaid import app
+  # Your main bot instance
 sessions = {}  # Temp memory to store login steps
 
 # ───── /start ─────
